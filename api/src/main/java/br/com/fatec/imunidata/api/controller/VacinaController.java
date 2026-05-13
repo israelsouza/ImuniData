@@ -1,8 +1,11 @@
 package br.com.fatec.imunidata.api.controller;
 
 import br.com.fatec.imunidata.api.model.RegistroVacinacao;
+import br.com.fatec.imunidata.api.model.dto.ConsultaVacinaResponseDTO;
+import br.com.fatec.imunidata.api.model.dto.EstadoResumoDTO;
 import br.com.fatec.imunidata.api.model.dto.VacinaApiDTO;
 import br.com.fatec.imunidata.api.model.dto.ImportacaoResponse;
+import br.com.fatec.imunidata.api.model.dto.VacinaResumoDTO;
 import br.com.fatec.imunidata.api.service.VacinaService;
 import br.com.fatec.imunidata.api.service.VacinaImportService;
 import jakarta.validation.Valid;
@@ -26,6 +29,43 @@ public class VacinaController {
     @GetMapping
     public ResponseEntity<List<RegistroVacinacao>> listarTodas() {
         return ResponseEntity.ok(service.listarTodas());
+    }
+
+    @GetMapping("/consulta")
+    public ResponseEntity<ConsultaVacinaResponseDTO> consultarComFiltros(
+            @RequestParam(required = false) String busca,
+            @RequestParam(required = false) String vacina,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String sexo,
+            @RequestParam(required = false) String dia,
+            @RequestParam(required = false) String regiao,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "100") int tamanho,
+            @RequestParam(defaultValue = "data_registro") String ordenarPor,
+            @RequestParam(defaultValue = "desc") String direcao
+    ) {
+        return ResponseEntity.ok(service.consultarComFiltros(
+                busca,
+                vacina,
+                estado,
+                sexo,
+                dia,
+                regiao,
+                pagina,
+                tamanho,
+                ordenarPor,
+                direcao
+        ));
+    }
+
+    @GetMapping("/resumo/estados")
+    public ResponseEntity<List<EstadoResumoDTO>> resumoPorEstado(@RequestParam(required = false) String vacina) {
+        return ResponseEntity.ok(service.resumoPorEstado(vacina));
+    }
+
+    @GetMapping("/resumo/vacinas")
+    public ResponseEntity<List<VacinaResumoDTO>> resumoPorVacina(@RequestParam(required = false) String estado) {
+        return ResponseEntity.ok(service.resumoPorVacina(estado));
     }
 
     @GetMapping("/{id}")
