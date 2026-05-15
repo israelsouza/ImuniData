@@ -77,6 +77,7 @@ function normalizarPayload(formulario) {
     vacina_sigla: formulario.vacina ? formulario.vacina.substring(0, 3).toUpperCase() : '',
     estado_nome: ESTADOS_MAP[formulario.estado] || '',
     data_registro: formulario.data_registro ? `${formulario.data_registro} 00:00:00-03` : '',
+    veioDoFormulario: true,
   }
 }
 
@@ -108,11 +109,27 @@ function App() {
   const [resumoEstados, setResumoEstados] = useState([])
   const [resumoVacinas, setResumoVacinas] = useState([])
 
+  // Filtros locais (processados no front-end)
+  const filteredRegistros = useMemo(() => {
+    return registros.filter(r => {
+      const matchDose = !filtrosDebounced.dose || r.dose === filtrosDebounced.dose;
+      const matchSexo = !filtrosDebounced.sexo || r.sexo_paciente === filtrosDebounced.sexo;
+      return matchDose && matchSexo;
+    });
+  }, [registros, filtrosDebounced])
+
+  // Paginação local sobre os dados filtrados
+  const paginatedRegistros = useMemo(() => {
+    const inicio = pagina * tamanho;
+    return filteredRegistros.slice(inicio, inicio + tamanho);
+  }, [filteredRegistros, pagina, tamanho])
+
   // Opções para autocomplete
   const [opcoesMunicipios, setOpcoesMunicipios] = useState([])
   const [opcoesVacinas, setOpcoesVacinas] = useState([])
   const [opcoesEstados, setOpcoesEstados] = useState([])
   const [opcoesEstadosNomes, setOpcoesEstadosNomes] = useState([])
+  const [opcoesDoses, setOpcoesDoses] = useState([])
 
   const [carregandoTabela, setCarregandoTabela] = useState(false)
   const [carregandoResumo, setCarregandoResumo] = useState(false)
@@ -146,11 +163,13 @@ function App() {
         const vacinas = [...new Set(registros.map(r => r.vacina))].sort()
         const estados = [...new Set(registros.map(r => r.estado))].sort()
         const estadosNomes = [...new Set(registros.map(r => r.estado_nome))].sort()
+        const doses = [...new Set(registros.map(r => r.dose))].sort()
 
         setOpcoesMunicipios(municipios)
         setOpcoesVacinas(vacinas)
         setOpcoesEstados(estados)
         setOpcoesEstadosNomes(estadosNomes)
+        setOpcoesDoses(doses)
       } catch (err) {
         console.error('Erro ao carregar opções:', err)
       }
@@ -174,7 +193,7 @@ function App() {
           dose: filtrosDebounced.dose,
           data_inicio: filtrosDebounced.data_inicio,
           data_fim: filtrosDebounced.data_fim,
-          sexo: filtrosDebounced.sexo,
+          sexo_paciente: filtrosDebounced.sexo,
           idade_min: filtrosDebounced.idade_min,
           idade_max: filtrosDebounced.idade_max,
           pagina,
@@ -381,7 +400,14 @@ function App() {
             <input name="vacina" value={formulario.vacina} onChange={onFormChange} placeholder="Tipo de vacina" required />
             <input name="dose" value={formulario.dose} onChange={onFormChange} placeholder="Dose" required />
             <input name="idade_paciente" type="number" min="1" value={formulario.idade_paciente} onChange={onFormChange} placeholder="Idade" required />
-            <input name="sexo_paciente" value={formulario.sexo_paciente} onChange={onFormChange} placeholder="Sexo do paciente" required />
+            <select name="sexo_paciente" value={formulario.sexo_paciente} onChange={onFormChange} required className="filtro-select">
+              <option value="">Selecione o sexo</option>
+              {SEXOS.map((sexo) => (
+                <option key={sexo} value={sexo}>
+                  {sexo === 'M' ? 'M - Masculino' : 'F - Feminino'}
+                </option>
+              ))}
+            </select>
             <input name="municipio" value={formulario.municipio} onChange={onFormChange} placeholder="Município" required />
             <input name="estado" value={formulario.estado} onChange={onFormChange} placeholder="Estado (sigla)" maxLength={2} required />
             {/* <input name="estado_nome" value={formulario.estado_nome} onChange={onFormChange} placeholder="Nome do estado" required /> */}
@@ -470,9 +496,9 @@ function App() {
 
           <select name="dose" value={filtros.dose} onChange={onFiltroChange} className="filtro-select">
             <option value="">💉 Todas as doses</option>
-            {DOSES.map((dose) => (
+            {opcoesDoses.map((dose) => (
               <option key={dose} value={dose}>
-                Dose {dose}
+                {dose}
               </option>
             ))}
           </select>
@@ -487,7 +513,7 @@ function App() {
           </select>
 
           <select value={tamanho} onChange={(e) => setTamanho(Number(e.target.value))} className="filtro-select">
-            <option value="">Registros por página</option>
+            <option value={PAGE_SIZE_DEFAULT}>Registros por página</option>
             {TAMANHOS_PAGINA.map((tam) => (
               <option key={tam} value={tam}>
                 {tam} registros
@@ -585,14 +611,14 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {registros.length === 0 && (
+                {paginatedRegistros.length === 0 && (
                   <tr>
                     <td colSpan="8" className="vazio">
                       Nenhum registro encontrado para os filtros atuais.
                     </td>
                   </tr>
                 )}
-                {registros.map((registro) => (
+                {paginatedRegistros.map((registro) => (
                   <tr key={registro.id}>
                     <td>{formatarData(registro.data_registro)}</td>
                     <td>{registro.municipio}</td>
@@ -602,12 +628,16 @@ function App() {
                     <td>{registro.sexo_paciente}</td>
                     <td>{registro.idade_paciente}</td>
                     <td className="acoes">
-                      <button type="button" onClick={() => editarRegistro(registro)}>
-                        Editar
-                      </button>
-                      <button type="button" className="destrutivo" onClick={() => excluirRegistro(registro.id)}>
-                        Excluir
-                      </button>
+                      {registro.veioDoFormulario && (
+                        <>
+                          <button type="button" onClick={() => editarRegistro(registro)}>
+                            Editar
+                          </button>
+                          <button type="button" className="destrutivo" onClick={() => excluirRegistro(registro.id)}>
+                            Excluir
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}

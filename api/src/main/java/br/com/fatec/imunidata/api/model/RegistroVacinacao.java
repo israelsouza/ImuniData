@@ -43,6 +43,8 @@ public class RegistroVacinacao {
     @NotBlank(message = "A data de registro é obrigatória")
     private String data_registro;
 
+    private boolean veioDoFormulario = false;
+
     public RegistroVacinacao() {}
 
     public RegistroVacinacao(String municipio, String estado, String estado_nome, String vacina, String vacina_sigla, String dose, String sexo_paciente, Integer idade_paciente, String data_registro) {
@@ -135,5 +137,13 @@ public class RegistroVacinacao {
 
     public void setData_registro(String data_registro) {
         this.data_registro = data_registro;
+    }
+
+    public boolean isVeioDoFormulario() {
+        return veioDoFormulario;
+    }
+
+    public void setVeioDoFormulario(boolean veioDoFormulario) {
+        this.veioDoFormulario = veioDoFormulario;
     }
 }
