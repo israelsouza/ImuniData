@@ -42,11 +42,14 @@ Todas as rotas seguem o prefixo `/vacina`.
 | Método | Endpoint | Descrição | Corpo da Requisição | Retorno Sucesso | Retorno Erro |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **GET** | `/vacina` | Lista todas as vacinas | N/A | `200 OK` + `List<RegistroVacinacao>` | `500 Internal Server Error` |
+| **GET** | `/vacina/consulta` | Consulta registros com filtros e paginação | N/A | `200 OK` + `ConsultaVacinaResponseDTO` | `500 Internal Server Error` |
+| **GET** | `/vacina/resumo/estados` | Resumo de aplicações por estado | N/A | `200 OK` + `List<EstadoResumoDTO>` | `500 Internal Server Error` |
+| **GET** | `/vacina/resumo/vacinas` | Resumo de aplicações por vacina | N/A | `200 OK` + `List<VacinaResumoDTO>` | `500 Internal Server Error` |
 | **GET** | `/vacina/{id}` | Busca vacina por ID | N/A | `200 OK` + `RegistroVacinacao` | `404 Not Found` |
-| **GET** | `/vacina/filtro/sexo/{sexo}` | Filtra registros por sexo do paciente, permitindo consultas simples como `M` ou `H` | N/A | `200 OK` + `List<RegistroVacinacao>` | `404 Not Found` |
-| **GET** | `/vacina/filtro/estado?sigla=...` | Filtra registros por sigla de estado | N/A | `200 OK` + `List<RegistroVacinacao>` | `404 Not Found` |
+| **GET** | `/vacina/filtro/sexo/{sexo}` | Filtra registros por sexo do paciente | N/A | `200 OK` + `List<RegistroVacinacao>` | `404 Not Found` |
+| **GET** | `/vacina/filtro/estado/{sigla}` | Filtra registros por sigla de estado | N/A | `200 OK` + `List<RegistroVacinacao>` | `404 Not Found` |
 | **POST** | `/vacina` | Cadastra novo registro de vacinação | JSON da entidade `RegistroVacinacao` | `201 Created` + `RegistroVacinacao` | `400 Bad Request` |
-| **POST** | `/vacina/importacao/manual` | Importa vários registros manualmente em lote, reutilizando o mesmo contrato da API externa | Lista JSON de `VacinaApiDTO` | `201 Created` + `ImportacaoResponse` | `400 Bad Request` |
+| **POST** | `/vacina/importacao/manual` | Importa registros em lote (contrato API externa) | Lista JSON de `VacinaApiDTO` | `201 Created` + `ImportacaoResponse` | `400 Bad Request` |
 | **PATCH** | `/vacina/{id}` | Atualiza dados parciais | JSON com campos a alterar | `200 OK` + `RegistroVacinacao` | `404 Not Found` |
 | **DELETE** | `/vacina/{id}` | Remove registro | N/A | `204 No Content` | `404 Not Found` |
 | **GET** | `/vacina/importacao/2026` | Importa dados da API externa | N/A | `200 OK` + `ImportacaoResponse` | `500 Internal Server Error` |
