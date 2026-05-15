@@ -37,7 +37,6 @@ public class RegistroVacinacao {
     private String sexo_paciente;
 
     @NotNull(message = "A idade do paciente é obrigatória")
-    @Positive(message = "A idade do paciente deve ser maior que zero")
     private Integer idade_paciente;
 
     @NotBlank(message = "A data de registro é obrigatória")
