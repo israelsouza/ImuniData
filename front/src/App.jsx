@@ -348,14 +348,14 @@ function App() {
             )}
           </div>
           <div className="campos-formulario">
+            <input name="vacina" value={formulario.vacina} onChange={onFormChange} placeholder="Tipo de vacina" required />
+            <input name="dose" value={formulario.dose} onChange={onFormChange} placeholder="Dose" required />
+            <input name="idade_paciente" type="number" min="1" value={formulario.idade_paciente} onChange={onFormChange} placeholder="Idade" required />
+            <input name="sexo_paciente" value={formulario.sexo_paciente} onChange={onFormChange} placeholder="Sexo do paciente" required />
             <input name="municipio" value={formulario.municipio} onChange={onFormChange} placeholder="Município" required />
             <input name="estado" value={formulario.estado} onChange={onFormChange} placeholder="Estado (sigla)" maxLength={2} required />
-            <input name="estado_nome" value={formulario.estado_nome} onChange={onFormChange} placeholder="Nome do estado" required />
-            <input name="vacina" value={formulario.vacina} onChange={onFormChange} placeholder="Tipo de vacina" required />
-            <input name="vacina_sigla" value={formulario.vacina_sigla} onChange={onFormChange} placeholder="Sigla da vacina" required />
-            <input name="dose" value={formulario.dose} onChange={onFormChange} placeholder="Dose" required />
-            <input name="sexo_paciente" value={formulario.sexo_paciente} onChange={onFormChange} placeholder="Sexo do paciente" required />
-            <input name="idade_paciente" type="number" min="1" value={formulario.idade_paciente} onChange={onFormChange} placeholder="Idade" required />
+            {/* <input name="estado_nome" value={formulario.estado_nome} onChange={onFormChange} placeholder="Nome do estado" required /> */}
+            {/* <input name="vacina_sigla" value={formulario.vacina_sigla} onChange={onFormChange} placeholder="Sigla da vacina" required /> */}
             <input name="data_registro" value={formulario.data_registro} onChange={onFormChange} placeholder="Data de registro (YYYY-MM-DD HH:mm:ss-03)" required />
           </div>
           <button type="submit" className="botao-principal" disabled={salvando}>
@@ -401,13 +401,13 @@ function App() {
         <h2>Filtros de Consulta</h2>
         
         <div className="filtros-linha-1">
-          <Autocomplete 
+          {/* <Autocomplete 
             nome="busca"
             valor={filtros.busca}
             onChange={onFiltroChange}
             placeholder="🔍 Busca dinâmica por município, estado ou vacina"
             opcoes={[...opcoesMunicipios, ...opcoesEstados, ...opcoesVacinas]}
-          />
+          /> */}
           
           <Autocomplete 
             nome="vacina"
@@ -416,6 +416,15 @@ function App() {
             placeholder="💉 Tipo de vacina"
             opcoes={opcoesVacinas}
           />
+
+          <select name="regiao" value={filtros.regiao} onChange={onFiltroChange} className="filtro-select">
+            <option value="">🌍 Todas as regiões</option>
+            {REGIOES.map((regiao) => (
+              <option key={regiao} value={regiao}>
+                {regiao}
+              </option>
+            ))}
+          </select>
           
           <Autocomplete 
             nome="estado"
@@ -427,14 +436,7 @@ function App() {
         </div>
 
         <div className="filtros-linha-2">
-          <select name="regiao" value={filtros.regiao} onChange={onFiltroChange} className="filtro-select">
-            <option value="">🌍 Todas as regiões</option>
-            {REGIOES.map((regiao) => (
-              <option key={regiao} value={regiao}>
-                {regiao}
-              </option>
-            ))}
-          </select>
+          
 
           <select name="dose" value={filtros.dose} onChange={onFiltroChange} className="filtro-select">
             <option value="">💉 Todas as doses</option>
@@ -464,7 +466,7 @@ function App() {
           </select>
         </div>
 
-        <div className="filtros-linha-3">
+        {/* <div className="filtros-linha-3">
           <input 
             type="date" 
             name="data_inicio"
@@ -511,7 +513,7 @@ function App() {
               title="Idade máxima"
             />
           </div>
-        </div>
+        </div> */}
       </section>
 
       <section className="card tabela-card">
