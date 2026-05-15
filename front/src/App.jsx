@@ -10,6 +10,36 @@ const DOSES = ['1', '2', '3', 'Reforço']
 const SEXOS = ['M', 'F']
 const TAMANHOS_PAGINA = [10, 25, 50, 100, 200]
 
+const ESTADOS_MAP = {
+  AC: 'Acre',
+  AL: 'Alagoas',
+  AP: 'Amapá',
+  AM: 'Amazonas',
+  BA: 'Bahia',
+  CE: 'Ceará',
+  DF: 'Distrito Federal',
+  ES: 'Espírito Santo',
+  GO: 'Goiás',
+  MA: 'Maranhão',
+  MT: 'Mato Grosso',
+  MS: 'Mato Grosso do Sul',
+  MG: 'Minas Gerais',
+  PA: 'Pará',
+  PB: 'Paraíba',
+  PR: 'Paraná',
+  PE: 'Pernambuco',
+  PI: 'Piauí',
+  RJ: 'Rio de Janeiro',
+  RN: 'Rio Grande do Norte',
+  RS: 'Rio Grande do Sul',
+  RO: 'Rondônia',
+  RR: 'Roraima',
+  SC: 'Santa Catarina',
+  SP: 'São Paulo',
+  SE: 'Sergipe',
+  TO: 'Tocantins',
+}
+
 const FORMULARIO_INICIAL = {
   municipio: '',
   estado: '',
@@ -34,19 +64,19 @@ function montarQuery(params) {
 
 function formatarData(valor) {
   if (!valor) return '-'
-  const normalizada = valor.replace(' ', 'T')
-  const data = new Date(normalizada)
-  if (Number.isNaN(data.getTime())) return valor
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  }).format(data)
+  const match = valor.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return valor
+  const [_, ano, mes, dia] = match
+  return `${dia}/${mes}/${ano}`
 }
 
 function normalizarPayload(formulario) {
   return {
     ...formulario,
     idade_paciente: Number(formulario.idade_paciente),
+    vacina_sigla: formulario.vacina ? formulario.vacina.substring(0, 3).toUpperCase() : '',
+    estado_nome: ESTADOS_MAP[formulario.estado] || '',
+    data_registro: formulario.data_registro ? `${formulario.data_registro} 00:00:00-03` : '',
   }
 }
 
@@ -253,7 +283,7 @@ function App() {
       dose: registro.dose,
       sexo_paciente: registro.sexo_paciente,
       idade_paciente: String(registro.idade_paciente),
-      data_registro: registro.data_registro,
+      data_registro: registro.data_registro ? registro.data_registro.substring(0, 10) : '',
     })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -356,7 +386,7 @@ function App() {
             <input name="estado" value={formulario.estado} onChange={onFormChange} placeholder="Estado (sigla)" maxLength={2} required />
             {/* <input name="estado_nome" value={formulario.estado_nome} onChange={onFormChange} placeholder="Nome do estado" required /> */}
             {/* <input name="vacina_sigla" value={formulario.vacina_sigla} onChange={onFormChange} placeholder="Sigla da vacina" required /> */}
-            <input name="data_registro" value={formulario.data_registro} onChange={onFormChange} placeholder="Data de registro (YYYY-MM-DD HH:mm:ss-03)" required />
+            <input type="date" name="data_registro" value={formulario.data_registro} onChange={onFormChange} required />
           </div>
           <button type="submit" className="botao-principal" disabled={salvando}>
             {salvando ? 'Salvando...' : editandoId ? 'Atualizar registro' : 'Cadastrar registro'}
